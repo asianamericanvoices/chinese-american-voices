@@ -262,23 +262,24 @@ export default function ArticlePage({ params }) {
               {getDisplayTitle(article)}
             </h1>
             
-            {article.originalTitle !== getDisplayTitle(article) && (
-              <p className="text-lg text-gray-600 mb-6 italic">
-                原标题：{article.originalTitle}
-              </p>
-            )}
-            
-            <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span className="font-medium">{getAuthorDisplay(article.author, article.source)}</span>
-                <span>•</span>
-                <span>{article.source}</span>
-                <span>•</span>
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4" />
+            {/* Journalistic Byline/Dateline */}
+            <div className="mb-6 pb-6 border-b border-gray-200">
+              <div className="text-sm text-gray-600 leading-relaxed">
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="font-medium text-gray-900">
+                    {getAuthorDisplay(article.author, article.source)}
+                  </span>
+                  <span>报道</span>
+                  <span>•</span>
+                  <span className="font-medium">{article.source}</span>
+                  <span>•</span>
                   <span>{formatDate(article.scrapedDate)}</span>
                 </div>
               </div>
+            </div>
+            
+            <div className="flex items-center justify-between mb-6">
+              <div></div>
               
               <button 
                 onClick={handleShare}
@@ -298,15 +299,16 @@ export default function ArticlePage({ params }) {
                 alt={getDisplayTitle(article)}
                 className="w-full h-64 lg:h-96 object-cover rounded-lg shadow-lg"
               />
+              <p className="text-xs text-gray-500 italic mt-2 text-center font-chinese">
+                图片由 Freepik Mystic AI 生成
+              </p>
             </div>
           )}
 
-          {/* Article Summary */}
+          {/* Article Content */}
           <div className="prose prose-lg max-w-none mb-8">
-            <div className="bg-gray-50 p-6 rounded-lg border-l-4 border-red-600">
-              <h2 className="text-lg font-bold text-gray-900 mb-3 font-chinese">文章摘要</h2>
+            <div className="text-gray-700 font-chinese leading-relaxed text-lg">
               <div 
-                className="text-gray-700 font-chinese leading-relaxed"
                 dangerouslySetInnerHTML={{ 
                   __html: getDisplaySummary(article).replace(/\n/g, '<br>') 
                 }}
