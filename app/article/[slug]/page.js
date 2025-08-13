@@ -340,7 +340,7 @@ export default function ArticlePage({ params }) {
               {relatedArticles.map((relatedArticle) => (
                 <Link 
                   key={relatedArticle.id}
-                  href={`/article/${relatedArticle.id}-${getDisplayTitle(relatedArticle).toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').substring(0, 50)}`}
+                  href={`/article/${relatedArticle.id}`}
                   className="group"
                 >
                   <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
