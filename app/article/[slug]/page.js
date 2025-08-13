@@ -266,12 +266,17 @@ export default function ArticlePage({ params }) {
             <div className="mb-6 pb-6 border-b border-gray-200">
               <div className="text-sm text-gray-600 leading-relaxed">
                 <div className="flex flex-wrap items-center gap-1">
-                  <span className="font-medium text-gray-900">
+                  {article.dateline && (
+                    <>
+                      <span className="font-medium text-gray-900">
+                        {article.dateline}消息
+                      </span>
+                      <span>•</span>
+                    </>
+                  )}
+                  <span className="font-medium">
                     {getAuthorDisplay(article.author, article.source)}
                   </span>
-                  <span>报道</span>
-                  <span>•</span>
-                  <span className="font-medium">{article.source}</span>
                   <span>•</span>
                   <span>{formatDate(article.scrapedDate)}</span>
                 </div>
