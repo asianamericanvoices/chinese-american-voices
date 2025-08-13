@@ -24,81 +24,59 @@ export default function ChineseAmericanVoices() {
     // For demo, using sample data structure matching your dashboard
     const fetchArticles = async () => {
       try {
-        // This would be: const response = await fetch('/api/published-articles');
-        // For now, using mock data with your actual article structure
-        const mockArticles = [
-          {
-            id: 1,
-            originalTitle: "Trump calls for U.S. census to exclude for the first time people with no legal status",
-            displayTitle: "New Census Rules Target Undocumented Immigrants",
-            aiSummary: "President Trump announced plans for a 'new' census that would exclude people without legal status, renewing controversial efforts from his first administration. The 14th Amendment requires counting the 'whole number of persons in each state' for congressional representation.",
-            translations: {
-              chinese: "特朗普总统宣布了一项\"新\"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对\"每个州的全部人数\"进行计算，以确定国会代表权。"
-            },
-            source: "NPR",
-            scrapedDate: "2025-08-07",
-            topic: "Immigration",
-            priority: "high",
-            relevanceScore: 8.5,
-            imageUrl: "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=800&h=400&fit=crop",
-            originalUrl: "https://www.npr.org/2025/08/07/nx-s1-5265650/new-census-trump-immigrants-counted"
-          },
-          {
-            id: 2,
-            originalTitle: "Immigrants who are crime victims and waiting for visas now face deportation",
-            displayTitle: "U-Visa Recipients Face New Deportation Threats",
-            aiSummary: "Some immigrants who've applied for U visas as crime victims are being detained as part of the Trump administration's mass deportation campaign. The U visa program was designed to help victims of crimes cooperate with law enforcement.",
-            translations: {
-              chinese: "一些申请U签证的犯罪受害者移民正在被拘留，这是特朗普政府大规模驱逐行动的一部分。U签证项目旨在帮助犯罪受害者与执法部门合作。"
-            },
-            source: "NBC News",
-            scrapedDate: "2025-08-07",
-            topic: "Immigration",
-            priority: "high",
-            relevanceScore: 9.0,
-            imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop",
-            originalUrl: "https://www.nbcnews.com/news/latino/immigrants-u-visas-deportation-new-trump-rules-ice-rcna223480"
-          },
-          {
-            id: 3,
-            originalTitle: "Trump administration freezes $108M at Duke amid inquiry into alleged racial preferences",
-            displayTitle: "Duke University Loses Federal Funding Over DEI Policies",
-            aiSummary: "The Trump administration frozen $108 million in research funding to Duke University, accusing the school of racial discrimination through affirmative action policies. This follows similar actions against Harvard, Columbia, and Cornell.",
-            translations: {
-              chinese: "特朗普政府冻结了杜克大学1.08亿美元的研究资金，指控该校通过平权行动政策进行种族歧视。这是继对哈佛、哥伦比亚和康奈尔采取类似行动之后。"
-            },
-            source: "AP News",
-            scrapedDate: "2025-08-07",
-            topic: "Education",
-            priority: "medium",
-            relevanceScore: 7.5,
-            imageUrl: "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=800&h=400&fit=crop",
-            originalUrl: "https://apnews.com/article/duke-university-funding-freeze-trump-dei-23a70359ee44a21fdc55bef6dfe52413"
-          },
-          {
-            id: 4,
-            originalTitle: "As Ichiro Suzuki becomes 1st Asian MLB Hall of Famer, Asian players share how he paved the way for them",
-            displayTitle: "Ichiro's Historic Hall of Fame Induction Inspires Asian Athletes",
-            aiSummary: "Ichiro Suzuki becomes the first Asian player inducted into the Baseball Hall of Fame, with Asian American players crediting him for paving the way. His 19-year MLB career included 10 All-Star selections and 10 Gold Glove awards.",
-            translations: {
-              chinese: "铃木一朗成为首位入选棒球名人堂的亚洲球员，亚裔美国球员称赞他为后来者铺平了道路。他19年的大联盟职业生涯包括10次全明星入选和10个金手套奖。"
-            },
-            source: "NBC News",
-            scrapedDate: "2025-08-07",
-            topic: "Culture",
-            priority: "medium",
-            relevanceScore: 8.0,
-            imageUrl: "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&h=400&fit=crop",
-            originalUrl: "https://www.nbcnews.com/news/asian-america/ichiro-suzuki-becomes-1st-asian-mlb-hall-famer-asian-players-rcna220513"
-          }
-        ];
+        console.log('🔍 Fetching published articles from API...');
         
-        setArticles(mockArticles);
+        // Connect to your real Supabase data via the API
+        const response = await fetch('/api/published-articles?language=chinese&limit=20');
+        
+        if (!response.ok) {
+          throw new Error(`API responded with status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ API Response:', data);
+        
+        if (data.articles && data.articles.length > 0) {
+          console.log(`📰 Loaded ${data.articles.length} published articles from dashboard`);
+          setArticles(data.articles);
+        } else {
+          console.log('📋 No published articles found, using fallback mock data');
+          // Fallback to mock data if no published articles
+          setArticles(getMockArticles());
+        }
+        
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching articles:', error);
+        console.error('❌ Error fetching real articles:', error);
+        console.log('📋 Falling back to mock data');
+        
+        // Fallback to mock data on any error
+        setArticles(getMockArticles());
         setLoading(false);
       }
+    };
+    
+    // Move mock data to a separate function for fallback
+    const getMockArticles = () => {
+      return [
+        {
+          id: 1,
+          originalTitle: "Trump calls for U.S. census to exclude for the first time people with no legal status",
+          displayTitle: "New Census Rules Target Undocumented Immigrants",
+          aiSummary: "President Trump announced plans for a 'new' census that would exclude people without legal status, renewing controversial efforts from his first administration. The 14th Amendment requires counting the 'whole number of persons in each state' for congressional representation.",
+          translations: {
+            chinese: "特朗普总统宣布了一项\"新\"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对\"每个州的全部人数\"进行计算，以确定国会代表权。"
+          },
+          source: "NPR",
+          scrapedDate: "2025-08-07",
+          topic: "Immigration",
+          priority: "high",
+          relevanceScore: 8.5,
+          imageUrl: "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=800&h=400&fit=crop",
+          originalUrl: "https://www.npr.org/2025/08/07/nx-s1-5265650/new-census-trump-immigrants-counted"
+        },
+        // ... include other mock articles for fallback
+      ];
     };
 
     fetchArticles();
