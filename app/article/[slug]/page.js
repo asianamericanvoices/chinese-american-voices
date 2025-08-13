@@ -6,16 +6,36 @@ import { Clock, ExternalLink, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ArticlePage({ params }) {
+  // Handle the async params in Next.js 13+ App Router
+  const [slug, setSlug] = useState(null);
+
+  useEffect(() => {
+    // Unwrap params if they're a Promise (Next.js 15+)
+    const getSlug = async () => {
+      const resolvedParams = await Promise.resolve(params);
+      setSlug(resolvedParams.slug);
+    };
+    
+    if (params) {
+      if (typeof params === 'object' && params.slug) {
+        setSlug(params.slug);
+      } else {
+        getSlug();
+      }
+    }
+  }, [params]);
   const [article, setArticle] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!slug) return;
+    
     const fetchArticle = async () => {
       try {
-        // Extract article ID from slug (format: id-title-slug)
-        const articleId = params.slug.split('-')[0];
+        // For simplified URLs, slug is just the article ID
+        const articleId = slug.toString();
         
         // Fetch all articles and find the matching one
         const response = await fetch('/api/published-articles?language=chinese&limit=50');
@@ -25,9 +45,13 @@ export default function ArticlePage({ params }) {
         }
         
         const data = await response.json();
+        
+        // Find by ID
         const foundArticle = data.articles.find(a => a.id.toString() === articleId);
         
         if (!foundArticle) {
+          console.error('Article not found for ID:', articleId);
+          console.log('Available articles:', data.articles.map(a => ({id: a.id, title: a.originalTitle})));
           setError('文章未找到');
           setLoading(false);
           return;
@@ -50,7 +74,7 @@ export default function ArticlePage({ params }) {
     };
 
     fetchArticle();
-  }, [params.slug]);
+  }, [slug]);
 
   const getDisplayTitle = (article) => {
     return article.translatedTitles?.chinese || 
