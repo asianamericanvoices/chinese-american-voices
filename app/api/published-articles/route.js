@@ -139,18 +139,6 @@ function generateSlug(title, id) {
     .replace(/-+$/, '');      // Remove trailing hyphens
 }
 
-// Helper function to generate URL slugs
-function generateSlug(title, id) {
-  if (!title) return `article-${id}`;
-  
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-')     // Replace spaces with hyphens
-    .substring(0, 50)         // Limit length
-    .replace(/-+$/, '');      // Remove trailing hyphens
-}
-
 function getMockArticles() {
   return [
     {
