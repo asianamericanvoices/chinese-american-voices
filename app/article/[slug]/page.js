@@ -76,6 +76,19 @@ export default function ArticlePage({ params }) {
     fetchArticle();
   }, [slug]);
 
+  const getCategoryNameInChinese = (topic) => {
+    const categoryMap = {
+      'Politics': '政治',
+      'Healthcare': '医疗健康', 
+      'Education': '教育',
+      'Immigration': '移民',
+      'Economy': '经济',
+      'Culture': '文化',
+      'General': '综合'
+    };
+    return categoryMap[topic] || topic;
+  };
+
   const getDisplayTitle = (article) => {
     return article.translatedTitles?.chinese || 
            article.displayTitle || 
@@ -230,7 +243,7 @@ export default function ArticlePage({ params }) {
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Link href="/" className="hover:text-red-600 transition-colors">首页</Link>
             <span>›</span>
-            <span className="font-medium">{article.topic}</span>
+            <span className="font-medium">{getCategoryNameInChinese(article.topic)}</span>
             <span>›</span>
             <span className="text-gray-900">文章详情</span>
           </div>
@@ -254,7 +267,7 @@ export default function ArticlePage({ params }) {
           <header className="mb-8">
             <div className="mb-4">
               <span className="inline-block px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
-                {article.topic}
+                {getCategoryNameInChinese(article.topic)}
               </span>
             </div>
             
