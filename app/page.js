@@ -160,19 +160,10 @@ export default function ChineseAmericanVoices() {
            '暂无中文摘要';
   };
 
-  // Generate article URL slug
+  // Generate article URL slug - simplified approach
   const getArticleUrl = (article) => {
-    if (article.slug) return `/article/${article.slug}`;
-    
-    // Generate slug from title
-    const title = getDisplayTitle(article);
-    const slug = title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-')     // Replace spaces with hyphens
-      .substring(0, 50);        // Limit length
-    
-    return `/article/${article.id}-${slug}`;
+    // Use just the article ID for now to ensure it works
+    return `/article/${article.id}`;
   };
 
   if (loading) {
