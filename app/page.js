@@ -1,4 +1,4 @@
-// app/page.js - Chinese American Voices Homepage (Chinese-focused)
+// app/page.js - Updated Chinese American Voices Homepage
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -25,7 +25,6 @@ export default function ChineseAmericanVoices() {
       try {
         console.log('🔍 获取已发布文章...');
         
-        // Connect to your real Supabase data via the API
         const response = await fetch('/api/published-articles?language=chinese&limit=20');
         
         if (!response.ok) {
@@ -62,23 +61,65 @@ export default function ChineseAmericanVoices() {
       {
         id: 1,
         originalTitle: "Trump calls for U.S. census to exclude for the first time people with no legal status",
-        displayTitle: "New Census Rules Target Undocumented Immigrants",
-        aiSummary: "President Trump announced plans for a 'new' census that would exclude people without legal status, renewing controversial efforts from his first administration.",
-        translations: {
-          chinese: "特朗普总统宣布了一项\"新\"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对\"每个州的全部人数\"进行计算，以确定国会代表权。"
-        },
-        translatedTitles: {
-          chinese: "特朗普呼吁美国人口普查首次排除无合法身份人员"
-        },
+        displayTitle: "特朗普呼吁美国人口普查首次排除无合法身份人员",
+        aiSummary: "特朗普总统宣布了一项\"新\"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对\"每个州的全部人数\"进行计算，以确定国会代表权。",
         source: "NPR",
         scrapedDate: "2025-08-07",
         topic: "Immigration",
         priority: "high",
         relevanceScore: 8.5,
         imageUrl: "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=800&h=400&fit=crop",
-        originalUrl: "https://www.npr.org/2025/08/07/nx-s1-5265650/new-census-trump-immigrants-counted"
+        originalUrl: "https://www.npr.org/2025/08/07/nx-s1-5265650/new-census-trump-immigrants-counted",
+        slug: "trump-census-immigration-policy"
+      },
+      {
+        id: 2,
+        originalTitle: "Immigrants who are crime victims and waiting for visas now face deportation",
+        displayTitle: "等待签证的犯罪受害者移民现在面临驱逐",
+        aiSummary: "一些申请U签证的犯罪受害者移民正在被拘留，这是特朗普政府大规模驱逐行动的一部分。U签证项目旨在帮助犯罪受害者与执法部门合作，但新政策不再保护申请人免于驱逐程序。",
+        source: "NBC News",
+        scrapedDate: "2025-08-07",
+        topic: "Immigration",
+        priority: "high",
+        relevanceScore: 9.0,
+        imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop",
+        originalUrl: "https://www.nbcnews.com/news/latino/immigrants-u-visas-deportation-new-trump-rules-ice-rcna223480",
+        slug: "u-visa-deportation-changes"
+      },
+      {
+        id: 3,
+        originalTitle: "Trump administration freezes $108M at Duke amid inquiry into alleged racial preferences",
+        displayTitle: "特朗普政府因调查涉嫌种族偏好冻结杜克大学1.08亿美元资金",
+        aiSummary: "特朗普政府冻结了杜克大学1.08亿美元的研究资金，指控该校通过平权行动政策进行种族歧视。这是继对哈佛、哥伦比亚和康奈尔采取类似行动之后，作为反对多元化、公平和包容项目的更广泛运动的一部分。",
+        source: "AP News",
+        scrapedDate: "2025-08-07",
+        topic: "Education",
+        priority: "medium",
+        relevanceScore: 7.5,
+        imageUrl: "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=800&h=400&fit=crop",
+        originalUrl: "https://apnews.com/article/duke-university-funding-freeze-trump-dei-23a70359ee44a21fdc55bef6dfe52413",
+        slug: "duke-university-funding-freeze"
       }
     ];
+  };
+
+  // Generate dynamic breaking news ticker from latest articles
+  const getBreakingNews = () => {
+    if (articles.length === 0) return "新人口普查规则提议 • 主要大学联邦资金被冻结 • 移民执法加强";
+    
+    const latestNews = articles
+      .filter(article => article.priority === 'high' || article.relevanceScore >= 7)
+      .slice(0, 5)
+      .map(article => {
+        const title = article.translatedTitles?.chinese || 
+                     article.displayTitle || 
+                     article.aiTitle || 
+                     article.originalTitle;
+        return title.length > 50 ? title.substring(0, 47) + '...' : title;
+      })
+      .join(' • ');
+    
+    return latestNews || "最新新闻更新 • 关注华裔美国人社区重要议题";
   };
 
   const filteredArticles = selectedCategory === 'all' 
@@ -108,7 +149,6 @@ export default function ChineseAmericanVoices() {
   // Helper function to get display content in Chinese
   const getDisplayTitle = (article) => {
     return article.translatedTitles?.chinese || 
-           article.translations?.chinese?.split('。')[0] || 
            article.displayTitle || 
            article.aiTitle || 
            article.originalTitle;
@@ -118,6 +158,21 @@ export default function ChineseAmericanVoices() {
     return article.translations?.chinese || 
            article.aiSummary || 
            '暂无中文摘要';
+  };
+
+  // Generate article URL slug
+  const getArticleUrl = (article) => {
+    if (article.slug) return `/article/${article.slug}`;
+    
+    // Generate slug from title
+    const title = getDisplayTitle(article);
+    const slug = title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .substring(0, 50);        // Limit length
+    
+    return `/article/${article.id}-${slug}`;
   };
 
   if (loading) {
@@ -167,7 +222,7 @@ export default function ChineseAmericanVoices() {
         </div>
       </header>
 
-      {/* Breaking News Ticker */}
+      {/* Breaking News Ticker - Now Dynamic */}
       <div className="bg-red-600 text-white py-2">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center">
@@ -176,7 +231,7 @@ export default function ChineseAmericanVoices() {
             </span>
             <div className="overflow-hidden flex-1">
               <div className="animate-scroll whitespace-nowrap text-sm">
-                新人口普查规则提议 • 主要大学联邦资金被冻结 • 移民执法加强
+                {getBreakingNews()}
               </div>
             </div>
           </div>
@@ -215,58 +270,59 @@ export default function ChineseAmericanVoices() {
           <div className="lg:col-span-2">
             {featuredArticle && (
               <article className="group cursor-pointer">
-                <div className="relative">
-                  <img 
-                    src={featuredArticle.imageUrl} 
-                    alt={getDisplayTitle(featuredArticle)}
-                    className="w-full h-64 lg:h-80 object-cover rounded-lg"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(featuredArticle.priority)}`}>
-                      {categories.find(cat => cat.id === featuredArticle.topic)?.name || featuredArticle.topic}
-                    </span>
+                <a href={getArticleUrl(featuredArticle)} className="block">
+                  <div className="relative">
+                    <img 
+                      src={featuredArticle.imageUrl} 
+                      alt={getDisplayTitle(featuredArticle)}
+                      className="w-full h-64 lg:h-80 object-cover rounded-lg"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(featuredArticle.priority)}`}>
+                        {categories.find(cat => cat.id === featuredArticle.topic)?.name || featuredArticle.topic}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="mt-6">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight group-hover:text-red-600 transition-colors font-chinese">
-                    {getDisplayTitle(featuredArticle)}
-                  </h1>
                   
-                  <div className="mt-4 flex items-center text-sm text-gray-600 space-x-4">
-                    <span>{featuredArticle.source}</span>
-                    <span>•</span>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{formatDate(featuredArticle.scrapedDate)}</span>
-                    </div>
-                    <span>•</span>
-                    <span>相关性: {featuredArticle.relevanceScore}/10</span>
-                  </div>
-
-                  <div className="mt-4 space-y-3">
-                    <p className="text-lg text-gray-700 leading-relaxed font-chinese">
-                      {getDisplaySummary(featuredArticle)}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between">
-                    <a 
-                      href={featuredArticle.originalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium"
-                    >
-                      <span>阅读原文</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
+                  <div className="mt-6">
+                    <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight group-hover:text-red-600 transition-colors font-chinese">
+                      {getDisplayTitle(featuredArticle)}
+                    </h1>
                     
-                    <div className="flex items-center space-x-4">
-                      <button className="text-gray-500 hover:text-red-600">分享</button>
-                      <button className="text-gray-500 hover:text-red-600">收藏</button>
+                    <div className="mt-4 flex items-center text-sm text-gray-600 space-x-4">
+                      <span>{featuredArticle.source}</span>
+                      <span>•</span>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-4 h-4" />
+                        <span>{formatDate(featuredArticle.scrapedDate)}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      <p className="text-lg text-gray-700 leading-relaxed font-chinese">
+                        {getDisplaySummary(featuredArticle)}
+                      </p>
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-between">
+                      <div className="inline-flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium">
+                        <span>阅读全文</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                      
+                      <a 
+                        href={featuredArticle.originalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 text-gray-500 hover:text-gray-700 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span>原文链接</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
                     </div>
                   </div>
-                </div>
+                </a>
               </article>
             )}
           </div>
@@ -283,21 +339,23 @@ export default function ChineseAmericanVoices() {
               <div className="space-y-4">
                 {otherArticles.slice(0, 3).map((article, index) => (
                   <article key={article.id} className="group cursor-pointer">
-                    <div className="flex space-x-3">
-                      <span className="text-2xl font-bold text-red-600 mt-1">
-                        {index + 2}
-                      </span>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors leading-tight font-chinese">
-                          {getDisplayTitle(article)}
-                        </h3>
-                        <div className="mt-2 flex items-center text-xs text-gray-500 space-x-2">
-                          <span>{article.source}</span>
-                          <span>•</span>
-                          <span>{formatDate(article.scrapedDate)}</span>
+                    <a href={getArticleUrl(article)} className="block">
+                      <div className="flex space-x-3">
+                        <span className="text-2xl font-bold text-red-600 mt-1">
+                          {index + 2}
+                        </span>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors leading-tight font-chinese">
+                            {getDisplayTitle(article)}
+                          </h3>
+                          <div className="mt-2 flex items-center text-xs text-gray-500 space-x-2">
+                            <span>{article.source}</span>
+                            <span>•</span>
+                            <span>{formatDate(article.scrapedDate)}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </a>
                   </article>
                 ))}
               </div>
@@ -332,49 +390,52 @@ export default function ChineseAmericanVoices() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {otherArticles.slice(3).map((article) => (
                 <article key={article.id} className="group cursor-pointer">
-                  <div className="relative">
-                    <img 
-                      src={article.imageUrl} 
-                      alt={getDisplayTitle(article)}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(article.priority)}`}>
-                        {categories.find(cat => cat.id === article.topic)?.name || article.topic}
-                      </span>
+                  <a href={getArticleUrl(article)} className="block">
+                    <div className="relative">
+                      <img 
+                        src={article.imageUrl} 
+                        alt={getDisplayTitle(article)}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(article.priority)}`}>
+                          {categories.find(cat => cat.id === article.topic)?.name || article.topic}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="mt-4">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-red-600 transition-colors leading-tight font-chinese">
-                      {getDisplayTitle(article)}
-                    </h3>
                     
-                    <div className="mt-2 flex items-center text-sm text-gray-600 space-x-3">
-                      <span>{article.source}</span>
-                      <span>•</span>
-                      <span>{formatDate(article.scrapedDate)}</span>
-                    </div>
+                    <div className="mt-4">
+                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-red-600 transition-colors leading-tight font-chinese">
+                        {getDisplayTitle(article)}
+                      </h3>
+                      
+                      <div className="mt-2 flex items-center text-sm text-gray-600 space-x-3">
+                        <span>{article.source}</span>
+                        <span>•</span>
+                        <span>{formatDate(article.scrapedDate)}</span>
+                      </div>
 
-                    <p className="mt-3 text-gray-700 text-sm leading-relaxed line-clamp-3 font-chinese">
-                      {getDisplaySummary(article).substring(0, 150)}...
-                    </p>
+                      <p className="mt-3 text-gray-700 text-sm leading-relaxed line-clamp-3 font-chinese">
+                        {getDisplaySummary(article).substring(0, 150)}...
+                      </p>
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <a 
-                        href={article.originalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center space-x-1 text-red-600 hover:text-red-700 text-sm font-medium"
-                      >
-                        <span>阅读更多</span>
-                        <ChevronRight className="w-4 h-4" />
-                      </a>
-                      <span className="text-xs text-gray-500">
-                        评分: {article.relevanceScore}
-                      </span>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="inline-flex items-center space-x-1 text-red-600 hover:text-red-700 text-sm font-medium">
+                          <span>阅读更多</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </div>
+                        <a 
+                          href={article.originalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-gray-500 hover:text-gray-700"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          原文
+                        </a>
+                      </div>
                     </div>
-                  </div>
+                  </a>
                 </article>
               ))}
             </div>
