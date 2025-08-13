@@ -1,4 +1,4 @@
-// app/api/published-articles/route.js
+// app/api/published-articles/route.js - Updated with relevancy filtering removed
 import { NextResponse } from 'next/server';
 
 // Optional Supabase integration - connects to your existing dashboard database
@@ -81,7 +81,8 @@ export async function GET(request) {
         priority: article.priority,
         relevanceScore: article.relevance_score,
         imageUrl: article.image_url,
-        originalUrl: article.original_url
+        originalUrl: article.original_url,
+        slug: generateSlug(article.original_title, article.id)
       }));
 
       console.log(`✅ Fetched ${articles.length} published articles from Supabase`);
@@ -126,6 +127,18 @@ export async function GET(request) {
   }
 }
 
+// Helper function to generate URL slugs
+function generateSlug(title, id) {
+  if (!title) return `article-${id}`;
+  
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .substring(0, 50)         // Limit length
+    .replace(/-+$/, '');      // Remove trailing hyphens
+}
+
 function getMockArticles() {
   return [
     {
@@ -149,7 +162,8 @@ function getMockArticles() {
       priority: "high",
       relevanceScore: 8.5,
       imageUrl: "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=800&h=400&fit=crop",
-      originalUrl: "https://www.npr.org/2025/08/07/nx-s1-5265650/new-census-trump-immigrants-counted"
+      originalUrl: "https://www.npr.org/2025/08/07/nx-s1-5265650/new-census-trump-immigrants-counted",
+      slug: "trump-calls-for-us-census-to-exclude-for-the-first-time"
     },
     {
       id: 2,
@@ -172,7 +186,8 @@ function getMockArticles() {
       priority: "high",
       relevanceScore: 9.0,
       imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop",
-      originalUrl: "https://www.nbcnews.com/news/latino/immigrants-u-visas-deportation-new-trump-rules-ice-rcna223480"
+      originalUrl: "https://www.nbcnews.com/news/latino/immigrants-u-visas-deportation-new-trump-rules-ice-rcna223480",
+      slug: "immigrants-who-are-crime-victims-and-waiting-for-visas"
     },
     {
       id: 3,
@@ -195,7 +210,8 @@ function getMockArticles() {
       priority: "medium",
       relevanceScore: 7.5,
       imageUrl: "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=800&h=400&fit=crop",
-      originalUrl: "https://apnews.com/article/duke-university-funding-freeze-trump-dei-23a70359ee44a21fdc55bef6dfe52413"
+      originalUrl: "https://apnews.com/article/duke-university-funding-freeze-trump-dei-23a70359ee44a21fdc55bef6dfe52413",
+      slug: "trump-administration-freezes-108m-at-duke-amid-inquiry"
     },
     {
       id: 4,
@@ -218,7 +234,8 @@ function getMockArticles() {
       priority: "medium",
       relevanceScore: 8.0,
       imageUrl: "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&h=400&fit=crop",
-      originalUrl: "https://www.nbcnews.com/news/asian-america/ichiro-suzuki-becomes-1st-asian-mlb-hall-famer-asian-players-rcna220513"
+      originalUrl: "https://www.nbcnews.com/news/asian-america/ichiro-suzuki-becomes-1st-asian-mlb-hall-famer-asian-players-rcna220513",
+      slug: "as-ichiro-suzuki-becomes-1st-asian-mlb-hall-of-famer"
     },
     {
       id: 5,
@@ -241,7 +258,8 @@ function getMockArticles() {
       priority: "medium",
       relevanceScore: 7.0,
       imageUrl: "https://images.unsplash.com/photo-1541872705-1f73c6400ec9?w=800&h=400&fit=crop",
-      originalUrl: "https://www.usatoday.com/story/news/politics/2025/08/06/voting-right-act-turns-60-protections-risk/85519564007/"
+      originalUrl: "https://www.usatoday.com/story/news/politics/2025/08/06/voting-right-act-turns-60-protections-risk/85519564007/",
+      slug: "voting-rights-gave-you-power-the-voting-rights-act-turns-60"
     }
   ];
 }
