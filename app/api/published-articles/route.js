@@ -135,7 +135,7 @@ function getMockArticles() {
       aiTitle: "Trump Proposes Historic Change to Census Counting",
       aiSummary: "President Trump announced plans for a 'new' census that would exclude people without legal status, renewing controversial efforts from his first administration. The 14th Amendment requires counting the 'whole number of persons in each state' for congressional representation, making this proposal constitutionally challenging.",
       translations: {
-        chinese: "特朗普总统宣布了一项"新"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对"每个州的全部人数"进行计算，以确定国会代表权，这使得该提案在宪法上面临挑战。",
+        chinese: "特朗普总统宣布了一项\"新\"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对\"每个州的全部人数\"进行计算，以确定国会代表权，这使得该提案在宪法上面临挑战。",
         korean: null
       },
       translatedTitles: {
@@ -231,7 +231,7 @@ function getMockArticles() {
         korean: null
       },
       translatedTitles: {
-        chinese: ""投票权给了你力量"：《投票权法》迎来60周年，其承诺能否持续？",
+        chinese: "\"投票权给了你力量\"：《投票权法》迎来60周年，其承诺能否持续？",
         korean: null
       },
       source: "USA Today",
