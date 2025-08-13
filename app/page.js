@@ -33,7 +33,7 @@ export default function ChineseAmericanVoices() {
             displayTitle: "New Census Rules Target Undocumented Immigrants",
             aiSummary: "President Trump announced plans for a 'new' census that would exclude people without legal status, renewing controversial efforts from his first administration. The 14th Amendment requires counting the 'whole number of persons in each state' for congressional representation.",
             translations: {
-              chinese: "特朗普总统宣布了一项"新"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对"每个州的全部人数"进行计算，以确定国会代表权。"
+              chinese: "特朗普总统宣布了一项\"新\"人口普查计划，该计划将排除没有合法身份的人员，重新启动了他第一届政府的争议性努力。第十四修正案要求对\"每个州的全部人数\"进行计算，以确定国会代表权。"
             },
             source: "NPR",
             scrapedDate: "2025-08-07",
