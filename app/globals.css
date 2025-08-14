@@ -15,7 +15,22 @@
 }
 
 .font-chinese {
-  font-family: var(--font-chinese);
+  font-family: 'Noto Sans SC', 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', sans-serif !important;
+  line-height: 1.6 !important;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  letter-spacing: 0.02em;
+}
+
+/* Add this new section for article content */
+.chinese-text-content {
+  line-height: 1.8;
+  letter-spacing: 0.05em;
+}
+
+.chinese-text-content p {
+  margin-bottom: 1rem;
+  text-align: justify;
 }
 
 /* Custom scrollbar for better aesthetics */
