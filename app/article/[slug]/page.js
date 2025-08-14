@@ -76,6 +76,30 @@ export default function ArticlePage({ params }) {
     fetchArticle();
   }, [slug]);
 
+  // Analytics tracking useEffect - NEWLY ADDED
+  useEffect(() => {
+    if (article && typeof window !== 'undefined' && typeof window.trackEvent === 'function') {
+      console.log('📊 Tracking article view:', article.id);
+      
+      // Track article page view
+      window.trackEvent('page_view', {
+        article_id: article.id,
+        article_title: getDisplayTitle(article),
+        article_topic: article.topic,
+        article_source: article.source,
+        article_language: 'zh',
+        content_type: 'article'
+      });
+
+      // Track reading session start
+      window.trackEvent('reading_start', {
+        article_id: article.id,
+        article_title: getDisplayTitle(article),
+        article_language: 'zh'
+      });
+    }
+  }, [article]);
+
   const getCategoryNameInChinese = (topic) => {
     const categoryMap = {
       'Politics': '政治',
@@ -134,20 +158,44 @@ export default function ArticlePage({ params }) {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
+    try {
+      // Track share attempt
+      if (typeof window.trackEvent === 'function') {
+        await window.trackEvent('share', {
+          method: 'native',
+          content_type: 'article',
+          item_id: article.id,
+          content_title: getDisplayTitle(article),
+          article_language: 'zh'
+        });
+      }
+
+      if (navigator.share) {
         await navigator.share({
           title: getDisplayTitle(article),
           text: getDisplaySummary(article).substring(0, 100) + '...',
           url: window.location.href,
         });
-      } catch (error) {
-        console.log('Error sharing:', error);
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        alert('链接已复制到剪贴板');
       }
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      alert('链接已复制到剪贴板');
+    } catch (error) {
+      console.log('Error sharing:', error);
+      
+      // Track failed share
+      if (typeof window.trackEvent === 'function') {
+        await window.trackEvent('share', {
+          method: 'native',
+          content_type: 'article',
+          item_id: article.id,
+          content_title: getDisplayTitle(article),
+          success: false,
+          error: error.message,
+          article_language: 'zh'
+        });
+      }
     }
   };
 
