@@ -3,6 +3,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Clock, ExternalLink, ArrowLeft, Share2 } from 'lucide-react';
+import { 
+  shareToWeChat, 
+  shareToWhatsApp, 
+  shareToFacebook, 
+  shareToTwitter, 
+  shareToEmail, 
+  copyToClipboard,
+  nativeShare 
+} from '../../../lib/sharing';
 import Link from 'next/link';
 
 export default function ArticlePage({ params }) {
@@ -157,45 +166,49 @@ export default function ArticlePage({ params }) {
     }
   };
 
-  const handleShare = async () => {
+  // Platform-specific share handler
+  const handlePlatformShare = async (platform) => {
+    const title = getDisplayTitle(article);
+    const summary = getDisplaySummary(article);
+    
+    console.log(`📤 Sharing to ${platform}:`, title);
+    
     try {
-      // Track share attempt
-      if (typeof window.trackEvent === 'function') {
-        await window.trackEvent('share', {
-          method: 'native',
-          content_type: 'article',
-          item_id: article.id,
-          content_title: getDisplayTitle(article),
-          article_language: 'zh'
-        });
-      }
-
-      if (navigator.share) {
-        await navigator.share({
-          title: getDisplayTitle(article),
-          text: getDisplaySummary(article).substring(0, 100) + '...',
-          url: window.location.href,
-        });
-      } else {
-        // Fallback: copy to clipboard
-        await navigator.clipboard.writeText(window.location.href);
-        alert('链接已复制到剪贴板');
-      }
-    } catch (error) {
-      console.log('Error sharing:', error);
+      let success = false;
       
-      // Track failed share
-      if (typeof window.trackEvent === 'function') {
-        await window.trackEvent('share', {
-          method: 'native',
-          content_type: 'article',
-          item_id: article.id,
-          content_title: getDisplayTitle(article),
-          success: false,
-          error: error.message,
-          article_language: 'zh'
-        });
+      switch (platform) {
+        case 'wechat':
+          success = await shareToWeChat(article.id, title, article.imageUrl);
+          break;
+        case 'whatsapp':
+          success = await shareToWhatsApp(article.id, title);
+          break;
+        case 'facebook':
+          success = await shareToFacebook(article.id, title);
+          break;
+        case 'twitter':
+          success = await shareToTwitter(article.id, title);
+          break;
+        case 'email':
+          success = await shareToEmail(article.id, title, summary);
+          break;
+        case 'copy':
+          success = await copyToClipboard(article.id, title);
+          break;
+        case 'native':
+        default:
+          success = await nativeShare(article.id, title, summary);
+          break;
       }
+      
+      if (success) {
+        console.log(`✅ Successfully shared to ${platform}`);
+      } else {
+        console.log(`❌ Failed to share to ${platform}`);
+      }
+      
+    } catch (error) {
+      console.error(`Error sharing to ${platform}:`, error);
     }
   };
 
@@ -347,13 +360,80 @@ export default function ArticlePage({ params }) {
             <div className="flex items-center justify-between mb-6">
               <div></div>
               
-              <button 
-                onClick={handleShare}
-                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors"
-              >
-                <Share2 className="w-4 h-4" />
-                <span className="text-sm">分享</span>
-              </button>
+              {/* Enhanced Share Buttons */}
+              <div className="flex items-center space-x-4">
+                {/* WeChat Share */}
+                <button 
+                  onClick={() => handlePlatformShare('wechat')}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors group"
+                  title="分享到微信 (Share to WeChat)"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 4.206-1.416 5.911.003.22.183.425.384.617.597.1-.065.195-.142.29-.218.863-.693 1.83-1.26 2.926-1.26.276 0 .543.027.811.05-.857-2.578.157-4.972 1.932-6.446C20.064 2.659 22.567 2.658 24 4.076"/>
+                  </svg>
+                  <span className="text-sm hidden md:inline">微信</span>
+                </button>
+
+                {/* WhatsApp Share */}
+                <button 
+                  onClick={() => handlePlatformShare('whatsapp')}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-green-500 transition-colors"
+                  title="分享到WhatsApp (Share to WhatsApp)"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.570-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/>
+                  </svg>
+                  <span className="text-sm hidden md:inline">WhatsApp</span>
+                </button>
+
+                {/* Facebook Share */}
+                <button 
+                  onClick={() => handlePlatformShare('facebook')}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
+                  title="分享到Facebook (Share to Facebook)"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  <span className="text-sm hidden md:inline">Facebook</span>
+                </button>
+
+                {/* Twitter Share */}
+                <button 
+                  onClick={() => handlePlatformShare('twitter')}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-400 transition-colors"
+                  title="分享到Twitter (Share to Twitter)"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  </svg>
+                  <span className="text-sm hidden md:inline">Twitter</span>
+                </button>
+
+                {/* Email Share */}
+                <button 
+                  onClick={() => handlePlatformShare('email')}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  title="通过邮件分享 (Share by Email)"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h3.819l6.545 4.91 6.545-4.91h3.819A1.636 1.636 0 0 1 24 5.457z"/>
+                  </svg>
+                  <span className="text-sm hidden md:inline">邮件</span>
+                </button>
+
+                {/* Copy Link */}
+                <button 
+                  onClick={() => handlePlatformShare('copy')}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors"
+                  title="复制链接 (Copy Link)"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                  </svg>
+                  <span className="text-sm hidden md:inline">复制</span>
+                </button>
+              </div>
             </div>
           </header>
 
