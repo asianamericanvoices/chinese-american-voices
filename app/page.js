@@ -146,15 +146,17 @@ export default function ChineseAmericanVoices() {
     }
   };
 
-  // Helper function to get display content in Chinese
+  // 🔧 FIXED: Helper function to get display content in Chinese - PRIORITIZE CHINESE FIRST
   const getDisplayTitle = (article) => {
+    // Priority: Chinese translation > AI title > display title > original title
     return article.translatedTitles?.chinese || 
-           article.displayTitle || 
            article.aiTitle || 
+           article.displayTitle || 
            article.originalTitle;
   };
 
   const getDisplaySummary = (article) => {
+    // Priority: Chinese translation > AI summary
     return article.translations?.chinese || 
            article.aiSummary || 
            '暂无中文摘要';
